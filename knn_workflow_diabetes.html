@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <title>diabetes detection</title>
+        <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='knn_workflow_diabetes.css')}} ">
+    </head>
+    <body>
+        
+        <h1>Diabetes Analysis</h1>
+
+        <div class='container glass'>
+
+            <button class='icon-container' id='icon_container' onclick="reset_form()">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            
+            <form id='diabetes_form' action="{{url_for('predict')}}" method='POST'>
+
+                {{form.hidden_tag()}}
+                <div class='user-details'>
+                    <div class='input-box'>
+                        {{form.Pregnancies.label(class_='label', for_='Pregnancies')}}
+                        {{form.Pregnancies(class_='input',id='Pregnancies',type='number',maxlength='2',max="20",min="0",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.Glucose.label(class_='label', for_="Glucose")}}
+                        {{form.Glucose(class_='input',id="Glucose" ,maxlength='3',max="100",min="50",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.BloodPressure.label(class_='label', for_="BloodPressure")}}
+                        {{form.BloodPressure(class_='input',id="BloodPressure",maxlength='3',max="200",min="50",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.SkinThickness.label(class_='label', for_="SkinThickness")}}
+                        {{form.SkinThickness(class_='input',id="SkinThickness",maxlength='3',max="100",min="5",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.Insulin.label(class_='label', for_="Insulin")}}
+                        {{form.Insulin(class_='input',id="Insulin",maxlength='3',max="999",min="10",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.BMI.label(class_='label', for_="BMI")}}
+                        {{form.BMI(class_='input',id="BMI",maxlength='3',max="100",min="5",inputmode='numeric')}}
+                    </div>
+
+                    <div class='input-box'>
+                        {{form.DiabetesPedigreeFunction.label(class_='label', for_="DiabetesPedigreeFunction")}}
+                        {{form.DiabetesPedigreeFunction(class_='input',id="DiabetesPedigreeFunction",maxlength='1',max="2",min="1",inputmode='numeric')}}
+                    </div>
+                
+                    <div class='input-box'>
+                        {{form.Age.label(class_='label', for_="Age")}}
+                        {{form.Age(class_='input',id="Age",maxlength='3',max="120",min="5",inputmode='numeric')}}
+                    </div>
+                </div>
+ 
+                <div class='spacer'></div>
+                <button class='submit-button' type='submit' id='submit_button'>Submit</button>
+            </form>
+            {% if prediction_text %}
+                <h2>Prediction: {{ prediction_text }}</h2>
+            {% endif %}
+        </div>
+
+    </body>
+    <script>
+        // Function to limit input to 3 digits
+       
+        function limitInputToThreeDigits(event) {
+            let input = event.target;
+        
+            // Remove any non-numeric characters
+            input.value = input.value.replace(/[^0-9]/g,'');
+        
+            // Limit the input to 3 characters
+            if (input.value.length > 3) {
+                input.value = input.value.slice(0, 3);
+            }
+        }
+        
+        function debounce(func,delay){
+            let TimeOut;
+            return function(...args){
+                clearTimeout(TimeOut);
+                TimeOut=setTimeout(()=> func.apply(this,args),delay);
+            }
+        }
+
+        function reset_form(){
+            document.getElementById('diabetes_form').reset();
+            window.location.href = "{{ url_for('predict') }}"; 
+        }
+
+        // Adding event listeners to all input fields to limit digits to 3
+
+        document.querySelectorAll('.input').forEach((input)=>{
+            input.addEventListener("input",limitInputToThreeDigits);
+        });
+
+        const form=document.getElementById('diabetes_form')
+        const button_submit=document.getElementById('submit_button')
+
+        button_submit.addEventListener('click',debounce((event)=> {
+            console.log('button clicked');
+        },1000));
+
+        const button_refresh=document.getElementById('icon_container');
+
+        button_refresh.addEventListener('click',debounce((event)=>{
+            reset_form();
+        },1000));
+
+    </script>
+    <footer>
+    </footer>
+</html>
